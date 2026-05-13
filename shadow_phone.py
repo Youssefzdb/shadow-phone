@@ -14,6 +14,9 @@ import socket
 import subprocess
 from datetime import datetime
 
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
 class C:
     GREEN   = '\033[92m'
     RED     = '\033[91m'
@@ -161,18 +164,6 @@ def osint_breach(phone):
     except Exception as e:
         print(f"  {C.YELLOW}⚠️  LeakCheck unavailable: {e}{C.RESET}")
 
-    # NumLookup free API
-    print(f"\n  {C.BOLD}[NumLookup API]{C.RESET}")
-    try:
-        r = requests.get(f"https://api.numlookup.com/v1/?number={normalized}&country=TN",
-                         timeout=10)
-        if r.status_code == 200:
-            data = r.json()
-            print(f"  {C.CYAN}ℹ️  NumLookup: {data}{C.RESET}")
-        else:
-            print(f"  {C.YELLOW}⚠️  NumLookup: HTTP {r.status_code}{C.RESET}")
-    except Exception as e:
-        print(f"  {C.YELLOW}⚠️  NumLookup unavailable: {e}{C.RESET}")
 
     return breaches
 
@@ -316,7 +307,7 @@ def vuln_sim_swap_active(phone, osint_data):
     if portal_url:
         print(f"  {C.CYAN}Checking carrier portal: {portal_url}{C.RESET}")
         try:
-            r = requests.get(portal_url, timeout=10)
+            r = requests.get(portal_url, timeout=10, verify=False)
             if r.status_code == 200:
                 # Check for MFA/2FA indicators in portal
                 page = r.text.lower()
